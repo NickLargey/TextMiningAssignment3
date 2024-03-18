@@ -152,8 +152,6 @@ def main():
             'https://www.lyrics.com/style/Dream+Pop',
             'https://www.lyrics.com/style/Europop',
             'https://www.lyrics.com/style/Indie+Pop',
-            # 'https://www.lyrics.com/style/J-pop', # No English translation
-            # 'https://www.lyrics.com/style/K-pop', # No English translation
             'https://www.lyrics.com/style/Pop+Rock',
             'https://www.lyrics.com/style/Power+Pop',
             'https://www.lyrics.com/style/Synth-pop'
@@ -194,11 +192,7 @@ def main():
         # Making genre folders
         subfolder_path = os.path.join(train_filepath, genre)
         os.makedirs(subfolder_path, exist_ok=True)
-        # Gets the number of songs form the genres that has the lowest
-        # count = find_min(url,headers)
-        # if count < min_count:
-            # min_count = count
-    
+
     # Running each file tasks independently 
         # File tasks = putting lyrcs that are in txt document into the correct genre folder
     with concurrent.futures.ThreadPoolExecutor() as executor:
