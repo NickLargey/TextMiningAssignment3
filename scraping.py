@@ -63,48 +63,54 @@ def get_all_genre_songs(website,headers):
     song_response = requests.get(website,headers=headers)
     if song_response.status_code == 200:
         soup = BeautifulSoup(song_response.content, 'html.parser')
+        page_end = True if not len(soup.find_all('div', class_='lyric-no-data clearfix')) > 0 else False
+        print(page_end)
     
         lyric_divs = soup.find_all('div', class_='sec-lyric sec-center clearfix row')
 
-        all_links = []
+        links = []
         for div in lyric_divs:
             title_tags = div.find_all('p', class_='lyric-meta-title')
             for title_tag in title_tags:
                 link = title_tag.find('a')
                 if link:
                     href = link.get('href')
-                    all_links.append("https://www.lyrics.com" + href)
-    return all_links
+                    links.append("https://www.lyrics.com" + href)
+    return page_end, links
 
 # scraping the lyrics and putting them in to txt
-def songs_in_genre_files(genre, url, filepath, headers, min_count):
+def songs_in_genre_files(genre, url, filepath, headers):
     count = 0
     i = 0
+    res = True
     # TODO: (replace varable) 500 is only temp -> real val: min_count
-    while count < 500:
+    while res == True:
         if i > 0:
-            all_links = get_all_genre_songs(os.path.join(url, str(i)), headers)
+            page_end, all_links= get_all_genre_songs(os.path.join(url, str(i)), headers)
+            res = page_end
+            print(res)
         else:
-            all_links = get_all_genre_songs(url, headers)
+            page_end, all_links = get_all_genre_songs(url, headers)
+            res = page_end
+            print(res)
+
         count = scrape_lyrics(all_links, headers, genre, filepath, count)
+        print("count", count)
         i += 1 
 
 # making sure traing and test folders dont have simlar songs
 def compare_folders(test_folder, train_folder, genre):
-    test_blues_folder = os.path.join(test_folder,genre)
-    train_blues_folder = os.path.join(train_folder, genre)
-
     # List all text file titles in the Test folder
-    test_files = [file.lower() for file in os.listdir(test_blues_folder) if file.endswith(".txt")]
+    test_files = [file for file in os.listdir(test_folder) if file.endswith(".txt")]
 
     # List all text file titles in the Training folder
-    train_files = [file.lower() for file in os.listdir(train_blues_folder) if file.endswith(".txt")]
+    train_files = [file for file in os.listdir(train_folder) if file.endswith(".txt")]
 
     for test_file in test_files:
         if test_file in train_files:
             # Remove the matched file in Test Songs
             print(f"Match found: {test_file} in Test Songs matches {test_file} in Training Songs")
-            training_file_path = os.path.join(train_blues_folder, test_file)
+            training_file_path = os.path.join(train_folder, test_file)
             os.remove(training_file_path)
             print(f"Removed {test_file} from Training Songs {genre}")
         else:
@@ -119,31 +125,88 @@ def main():
     os.makedirs(train_filepath, exist_ok=True)
     # Starting genre links
     genres_dict = {
-    'Rock': 'https://www.lyrics.com/genre/Rock',
-    'Rap': 'https://www.lyrics.com/genre/Hip+Hop',
-    'Pop': 'https://www.lyrics.com/genre/Pop',
-    'Metal': 'https://www.lyrics.com/style/Heavy+Metal',
-    'Country': 'https://www.lyrics.com/style/Country',
-    'Blues': 'https://www.lyrics.com/genre/Blues'
+    'Rock': ['https://www.lyrics.com/style/Arena+Rock',
+             'https://www.lyrics.com/style/Art+Rock',
+             'https://www.lyrics.com/style/Acid+Rock',
+             'https://www.lyrics.com/style/Alternative+Rock', 
+             'https://www.lyrics.com/style/Blues+Rock',
+             'https://www.lyrics.com/style/Classic+Rock',
+             'https://www.lyrics.com/style/Folk+Rock',
+             'https://www.lyrics.com/style/Garage+Rock',
+             'https://www.lyrics.com/style/Goth+Rock',
+             'https://www.lyrics.com/style/Indie+Rock',
+             'https://www.lyrics.com/style/Soft+Rock',
+             'https://www.lyrics.com/style/Space+Rock',
+             'https://www.lyrics.com/style/Stoner+Rock',
+             'https://www.lyrics.com/style/Symphonic+Rock',
+             'https://www.lyrics.com/style/Rock+__+Roll',
+             'https://www.lyrics.com/style/Psychedelic+Rock',
+             'https://www.lyrics.com/style/Prog+Rock',
+             'https://www.lyrics.com/style/Punk+Rock',
+             'https://www.lyrics.com/style/Post+Rock'],
+
+    'Rap':  ['https://www.lyrics.com/genre/Hip+Hop'],
+
+    'Pop':  ['https://www.lyrics.com/style/Brit+Pop',
+            'https://www.lyrics.com/style/Dance-pop',
+            'https://www.lyrics.com/style/Dream+Pop',
+            'https://www.lyrics.com/style/Europop',
+            'https://www.lyrics.com/style/Indie+Pop',
+            # 'https://www.lyrics.com/style/J-pop', # No English translation
+            # 'https://www.lyrics.com/style/K-pop', # No English translation
+            'https://www.lyrics.com/style/Pop+Rock',
+            'https://www.lyrics.com/style/Power+Pop',
+            'https://www.lyrics.com/style/Synth-pop'
+            ],
+
+    'Metal':['https://www.lyrics.com/style/Heavy+Metal',
+             'https://www.lyrics.com/style/Black+Metal',
+             'https://www.lyrics.com/style/Death+Metal',
+             'https://www.lyrics.com/style/Deathcore',
+             'https://www.lyrics.com/style/Doom+Metal',
+             'https://www.lyrics.com/style/Folk+Metal',
+             'https://www.lyrics.com/style/Funeral+Doom+Metal',
+             'https://www.lyrics.com/style/Funk+Metal',
+             'https://www.lyrics.com/style/Glam',
+             'https://www.lyrics.com/style/Gothic+Metal',
+             'https://www.lyrics.com/style/Metalcore',
+             'https://www.lyrics.com/style/Melodic+Death+Metal',
+             'https://www.lyrics.com/style/Nu+Metal',
+             'https://www.lyrics.com/style/Power+Metal',
+             'https://www.lyrics.com/style/Progressive+Metal',
+             'https://www.lyrics.com/style/Sludge+Metal',
+             'https://www.lyrics.com/style/Speed+Metal',],
+
+    'Country': ['https://www.lyrics.com/style/Country',
+                'https://www.lyrics.com/style/Country+Rock',
+                'https://www.lyrics.com/style/Hillbilly'],
+
+    'Blues': ['https://www.lyrics.com/style/Chicago+Blues',
+              'https://www.lyrics.com/style/Country+Blues',
+              'https://www.lyrics.com/style/Delta+Blues',
+              'https://www.lyrics.com/style/Gospel',
+              'https://www.lyrics.com/style/Harmonica+Blues',
+              ]
     }
     
-    min_count = float('inf')
+    # min_count = float('inf')
     for genre, url in genres_dict.items():
         # Making genre folders
         subfolder_path = os.path.join(train_filepath, genre)
         os.makedirs(subfolder_path, exist_ok=True)
         # Gets the number of songs form the genres that has the lowest
-        count = find_min(url,headers)
-        if count < min_count:
-            min_count = count
+        # count = find_min(url,headers)
+        # if count < min_count:
+            # min_count = count
     
     # Running each file tasks independently 
         # File tasks = putting lyrcs that are in txt document into the correct genre folder
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Creating the tasks/threads
         futures = []
-        for genre, url in genres_dict.items():
-            futures.append(executor.submit(songs_in_genre_files, genre, url, train_filepath, headers, min_count))     
+        for genre, urls in genres_dict.items():
+            for url in urls:
+                futures.append(executor.submit(songs_in_genre_files, genre, url, train_filepath, headers))     
 
     # Removing training songs that match with test songs 
     test_folder = os.path.join(find_directory, "Test Songs")
