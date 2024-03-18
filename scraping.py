@@ -61,50 +61,53 @@ def scrape_lyrics(all_links,headers,genre,filepath,count):
 # Gets all the song links on the page
 def get_all_genre_songs(website,headers):
     song_response = requests.get(website,headers=headers)
-    if song_response.status_code == 200:
+    stat_code = song_response.status_code
+    if stat_code == 200:
         soup = BeautifulSoup(song_response.content, 'html.parser')
     
         lyric_divs = soup.find_all('div', class_='sec-lyric sec-center clearfix row')
 
-        all_links = []
+        links = []
         for div in lyric_divs:
             title_tags = div.find_all('p', class_='lyric-meta-title')
             for title_tag in title_tags:
                 link = title_tag.find('a')
                 if link:
                     href = link.get('href')
-                    all_links.append("https://www.lyrics.com" + href)
-    return all_links
+                    links.append("https://www.lyrics.com" + href)
+    return stat_code, links
 
 # scraping the lyrics and putting them in to txt
 def songs_in_genre_files(genre, url, filepath, headers, min_count):
     count = 0
     i = 0
+    res = True
     # TODO: (replace varable) 500 is only temp -> real val: min_count
-    while count < 500:
+    while res == True or count > 10000:
         if i > 0:
-            all_links = get_all_genre_songs(os.path.join(url, str(i)), headers)
+            res_code, all_links= get_all_genre_songs(os.path.join(url, str(i)), headers)
+            res = True if res_code == 200 else False
         else:
-            all_links = get_all_genre_songs(url, headers)
+            res_code, all_links = get_all_genre_songs(url, headers)
+            res = True if res_code == 200 else False
+
         count = scrape_lyrics(all_links, headers, genre, filepath, count)
+        print("count", count)
         i += 1 
 
 # making sure traing and test folders dont have simlar songs
 def compare_folders(test_folder, train_folder, genre):
-    test_blues_folder = os.path.join(test_folder,genre)
-    train_blues_folder = os.path.join(train_folder, genre)
-
     # List all text file titles in the Test folder
-    test_files = [file.lower() for file in os.listdir(test_blues_folder) if file.endswith(".txt")]
+    test_files = [file for file in os.listdir(test_folder) if file.endswith(".txt")]
 
     # List all text file titles in the Training folder
-    train_files = [file.lower() for file in os.listdir(train_blues_folder) if file.endswith(".txt")]
+    train_files = [file for file in os.listdir(train_folder) if file.endswith(".txt")]
 
     for test_file in test_files:
         if test_file in train_files:
             # Remove the matched file in Test Songs
             print(f"Match found: {test_file} in Test Songs matches {test_file} in Training Songs")
-            training_file_path = os.path.join(train_blues_folder, test_file)
+            training_file_path = os.path.join(train_folder, test_file)
             os.remove(training_file_path)
             print(f"Removed {test_file} from Training Songs {genre}")
         else:
