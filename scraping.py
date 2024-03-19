@@ -118,7 +118,9 @@ def compare_folders(test_folder, train_folder, genre):
             print(f"No match found for {test_file} in Training Songs {genre}")
 
 def to_csv(folder_path):
+
     with open("lyrics.csv", "w", encoding="utf-8") as file:
+
         file.write("Song Title, Lyrics, Genre\n")
         for genre in os.listdir(folder_path):
             genre_path = os.path.join(folder_path, genre)
@@ -126,8 +128,9 @@ def to_csv(folder_path):
                 song_path = os.path.join(genre_path, song)
                 with open(song_path, "r", encoding="utf-8") as song_file:
                     s_title = song.split(".")[0]
-                    lyrics = song_file.read().replace("\n", " ")
-                    file.write(f"{s_title}, {lyrics}, {genre}\n")
+                    s_title = s_title.replace(",", "").replace("\n", " ")
+                    lyrics = song_file.read().replace(",", "").replace("\n", " ")
+                    file.write(f"{s_title}, {str(lyrics)}, {genre}\n")
             
 def main():
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
