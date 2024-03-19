@@ -121,7 +121,7 @@ def to_csv(folder_path):
 
     with open("lyrics.csv", "w", encoding="utf-8") as file:
 
-        file.write("Song Title, Lyrics, Genre\n")
+        file.write("Song Title,Lyrics,Genre\n")
         for genre in os.listdir(folder_path):
             genre_path = os.path.join(folder_path, genre)
             for song in tqdm(os.listdir(genre_path)):
@@ -130,7 +130,7 @@ def to_csv(folder_path):
                     s_title = song.split(".")[0]
                     s_title = s_title.replace(",", "").replace("\n", " ")
                     lyrics = song_file.read().replace(",", "").replace("\n", " ")
-                    file.write(f"{s_title}, {str(lyrics)}, {genre}\n")
+                    file.write(f"{s_title},{str(lyrics)},{genre}\n")
             
 def main():
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}

@@ -7,12 +7,15 @@ from spacy import displacy
 
 
 def EDA(dataframe):
-  df = pd.copy(dataframe)
+  print(dataframe.info())
+  # print(dataframe.head())
+  # df = pd.DataFrame()
+  # df['Lyrics'] = dataframe['Lyrics'].copy()
 
-  nlp = spacy.load("en_core_web_sm")
-  text = df.iloc[0]['lyrics']
-  doc = nlp(text)
-  displacy.serve(doc, style="dep")
+  # nlp = spacy.load("en_core_web_sm")
+  # text = df.iloc[0]['Lyrics']
+  # doc = nlp(text)
+  # displacy.serve(doc, style="dep")
 
 
 
