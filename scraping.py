@@ -225,8 +225,6 @@ def main():
     # for genre, _ in genres_dict.items():
     #     compare_folders(test_folder, train_filepath, genre)  
 
-    ######## END RUN ONCE ########
-
     # Putting all the lyrics in to a csv file
     to_csv(train_filepath)
 
