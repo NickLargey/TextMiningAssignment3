@@ -63,9 +63,7 @@ The script is organized into several functions, each responsible for its own tas
 2. Ensure that the following are installed:
 
     ```bash
-    pip install tensorflow
-    pip install gensim
-    pip install tqdm
+    pip install tensorflow gensim tqdm
     ```
 3. Ensure that everything is in the same directory
    This includes:
