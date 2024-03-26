@@ -1,0 +1,43 @@
+[Bird] Lady?
+[Lady] Yes, bird?
+[Bird] It's cold
+[Lady] I know
+[Lady] Bird...I cannot see a thing
+[Bird] It's all in your mind
+[Lady] I'm worried
+[Bird] No one will come to see us
+[Lady] Maybe they come but we just don't see them What do you see?
+[Bird] I see what's outside
+[Lady] And what exactly is outside?
+[Bird] It's grown-ups
+[Lady] Well maybe if we scream they can hear us
+[Bird] Yeah, maybe we should try to scream
+[Lady] Ok, Bird
+[Lady] & [Bird] Heeeelp, Heeeelp!! Can you hear us now? Hello! Help! Hello, it's me...hey, can you see? Can you see me? I'm here... Nana, come and take us! Hello? Are you there? Hello?
+[Lady] I don't think they can hear us
+[Bird] I can hear you, lady
+[Bird] Do you want to come with me, lady?
+[Lady] Will you be nice to me Bird?
+[Lady] You're always nice to me because you're my friend
+[Bird] I try, but sometimes I make mistakes
+[Lady] Nana says we all make mistakes
+[Bird] Maybe we should scream more
+[Lady] Yes bird, let's scream more
+[Lady] & [Bird] Help! Help us! Come on! Help! Hello? Help! Hello? We're lost!
+[Lady] I don't think they can see us
+[Bird] Nobody likes us
+[Lady] But they all seem so big
+[Bird] Maybe we should just jump
+[Lady] What if we fall from the bridge and then nobody can catch us?
+[Bird] I don't know... let's just see what happens
+[Lady] Okay
+[Bird] Come with me
+[Lady] Shall we do it together?
+[Bird] Yeah
+[Lady] & [Bird] 1, 2, 3...AAAH!!
+[Bird] Lady?
+[Lady] Yes, bird?
+[Bird] It's cold
+[Lady] I know
+[Lady] Bird...I cannot see a thing
+[Bird] It's all in your mind
