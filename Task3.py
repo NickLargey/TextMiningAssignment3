@@ -17,9 +17,8 @@ from sklearn.preprocessing import LabelEncoder
 from gensim.models import Word2Vec
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.metrics import f1_score, classification_report
-
-
+from sklearn.metrics import f1_score
+from tqdm import tqdm 
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -29,6 +28,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 #pip install tensorflow
 #pip install gensim
+#pip install tqdm
+#conda activate Task3
 
 
 def split_data_by_genre(validation_percent=0.1, genre_lyrics_dict=None, lowest_genre_count=None):
@@ -59,6 +60,34 @@ def tokenize_lyrics(lyrics):
     filtered_tokens = [word for word in tokens if word not in stop_words] 
     return filtered_tokens
 
+def csv_info(data_path,genres_count,genre_lyrics_dict):
+    with open(data_path, 'r', encoding='utf-8') as file:
+        csv_reader = csv.DictReader(file)
+        # Count total rows for tqdm
+        total_rows = sum(1 for row in csv_reader)  
+        # Reset pointer for csv
+        file.seek(0)
+        next(csv_reader)
+        
+        # Collecting the csv informtion 
+        for row in tqdm(csv_reader, total=total_rows, desc='CSV Processing'):
+            lyrics = row['Lyrics']
+            genre = row['Genre']
+
+            genres_count[genre] += 1
+
+            tokenized_lyrics = tokenize_lyrics(lyrics)
+            
+            # Storing genre and lyrics
+            if genre in genre_lyrics_dict:
+                genre_lyrics_dict[genre].append(tokenized_lyrics)
+            else:
+                # If genre not in dictionary, create a new list with lyrics
+                genre_lyrics_dict[genre] = [tokenized_lyrics]
+    
+    return genre_lyrics_dict   
+
+
 def get_average_embedding(tokens,word2vec_model):
     embeddings = [word2vec_model.wv[word] for word in tokens if word in word2vec_model.wv]
     if embeddings:
@@ -68,26 +97,16 @@ def get_average_embedding(tokens,word2vec_model):
 
 def main():
     
-    # valdating and training
+
+    # Getting csv information from lyrics
+    #print("Collecting informtion from lyrcs has started")
     find_directory = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(find_directory, 'lyrics.csv')
     genres_count = {"Pop": 0, "Rap": 0, "Rock": 0, "Metal": 0, "Country": 0, "Blues": 0}
     genre_lyrics_dict = {}
+    genres = []
 
-    with open(data_path, 'r', encoding='utf-8') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            lyrics = row['Lyrics']
-            genre = row['Genre']
-
-            genres_count[genre] += 1
-            
-            # Storing genre and lyrics
-            if genre in genre_lyrics_dict:
-                genre_lyrics_dict[genre].append(lyrics)
-            else:
-                # If genre not in dictionary, create a new list with lyrics
-                genre_lyrics_dict[genre] = [lyrics]
+    genre_lyrics_dict = csv_info(data_path,genres_count,genre_lyrics_dict)
 
     # Valdation and Training data
     lowest_genre_count = min(len(lyrics_list) for lyrics_list in genre_lyrics_dict.values()) 
@@ -98,12 +117,12 @@ def main():
                               vector_size=100, window=5, min_count=1, workers=4)
     
     # Calculate average embeddings for training data
-    for genre, lyrics_list in train_data.items():
-        train_data[genre] = [get_average_embedding(tokens, word2vec_model) for tokens in lyrics_list]
-
+    for genre, token_list in tqdm(train_data.items(), desc='Training Data Processing'):
+        train_data[genre] = [get_average_embedding(tokens, word2vec_model) for tokens in token_list]
+        genres.append(genre)
     # Calculate average embeddings for validation data
-    for genre, lyrics_list in validation_data.items():
-        validation_data[genre] = [get_average_embedding(tokens, word2vec_model) for tokens in lyrics_list]
+    for genre, token_list in tqdm(validation_data.items(), desc='Validation Data Processing'):
+        validation_data[genre] = [get_average_embedding(tokens, word2vec_model) for tokens in token_list]
     
     # Convert data to numpy arrays for model training
     X_train = np.concatenate([v for v in train_data.values()])
@@ -122,7 +141,6 @@ def main():
     y_train_onehot = np.eye(num_classes)[y_train_encoded]
     y_val_onehot = np.eye(num_classes)[y_val_encoded]
 
-
     # Define a feedforward neural network model
     model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(128, activation='relu', input_shape=(100,)),  # Word2Vec vector_size = 100 so input_shape = 100
@@ -135,22 +153,9 @@ def main():
                   metrics=['accuracy'])
 
     # Train the model
-    history = model.fit(X_train, y_train_onehot, epochs=10, batch_size=32, validation_data=(X_val, y_val_onehot))
+    history = model.fit(X_train, y_train_onehot, epochs=30, batch_size=32, validation_data=(X_val, y_val_onehot))
 
-    # Evaluate the model
-    _, accuracy = model.evaluate(X_val, y_val_onehot)
-    print("Modle Accuracy:", accuracy)
-
-    # Access loss history
-    valdation_loss = history.history['val_loss']
-    training_loss = history.history['loss']
-    print("Training Losses:")
-    for epoch, loss_value in enumerate(training_loss, 1):
-        print(f"Epoch {epoch}: {loss_value}")
-    print("Valdation Losses:")
-    for epoch, loss_value in enumerate(valdation_loss, 1):
-        print(f"Epoch {epoch}: {loss_value}")
-
+    # Creating plot for the Loss values of the training and valdation sets
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
     plt.title('Model Loss')
@@ -158,29 +163,76 @@ def main():
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Validation'], loc='upper left')
     plt.savefig('loss_plot.pdf')
-    plt.show()
+    #plt.show()
 
-    # Results showing F1-Score of your model 
+    # Getting csv information from test
+    test_data_path = os.path.join(find_directory, 'test.csv')
+    genre_test_dict = {}
+    test_data = {}
+    genres_count = {"Pop": 0, "Rap": 0, "Rock": 0, "Metal": 0, "Country": 0, "Blues": 0}
+
+    test_data = csv_info(test_data_path,genres_count,genre_test_dict)
+
+    # Embedding tokens 
+    for genre, token_list in tqdm(test_data.items(), desc='Test Data Processing'):
+        test_data[genre] = [get_average_embedding(tokens, word2vec_model) for tokens in token_list]
+    
+    # Convert data to numpy arrays
+    X_test = np.concatenate([v for v in test_data.values()])
+
+    # Encode labels
+    y_test = np.concatenate([np.full(len(v), k) for k, v in test_data.items()])
+    y_test_encoded = le.transform(y_test)
+
+    #Evaluate F1 scores from the test and modle 
+    # Modle F1-Score
+    modle_f1_genre = {}
     y_pred = model.predict(X_val)
     y_pred_classes = np.argmax(y_pred, axis=1)
     f1 = f1_score(y_val_encoded, y_pred_classes, average='weighted')
-    # F1-Score per genre
-    report = classification_report(y_val_encoded, y_pred_classes)
-    print('Overall F1-Score:', f1)
-    print('F1-Score per genre:\n', report)
+    f1_per_genre = f1_score(y_val_encoded, y_pred_classes, average=None)
+    for genre, f1_score_genre in tqdm(zip(genres, f1_per_genre), desc='Modle F1 Score Processing'):    
+       modle_f1_genre[genre] = f1_score_genre
 
-    plt.figure(figsize=(8, 6))
-    cell_text = [[f1]]
-    rows = ['Overall F1-Score']
-    cols = ['Score']
-    plt.table(cellText=cell_text, rowLabels=rows, colLabels=cols, loc='center')
+    # Test F1-Score    
+    test_f1_genre = {}
+    y_pred_test = model.predict(X_test)
+    y_pred_classes_test = np.argmax(y_pred_test, axis=1)
+    test_avrage_f1 = f1_score(y_val_encoded, y_pred_classes, average='weighted')
+    f1_test = f1_score(y_test_encoded, y_pred_classes_test, average=None)
+    for genre, f1_test in tqdm(zip(genres, f1_test), desc='Test F1 Score Processing'):    
+       test_f1_genre[genre] = f1_test
+    
+   # Data for the table
+    genres = []
+    genres = list(modle_f1_genre.keys())
+    rows_model = ['Test', 'Modle']
+    cols_model =  genres + ['Average']
+    table_data = []
 
+    for genre in genres:
+        table_data.append([test_f1_genre[genre], modle_f1_genre[genre]])
+    table_data.append([f1,test_avrage_f1])
+
+    # Table size setup
+    _, axs = plt.subplots(figsize=(6, 6))
     # Hide axes
-    plt.axis('off')
+    axs.axis('off')
 
+    # Create the table
+    axs.table(cellText=table_data,
+                    rowLabels=cols_model,
+                    colLabels=rows_model,
+                    cellLoc='center',
+                    loc='center')
+
+    plt.title('F1 Scores for Test and Modle')
+   
     # Save the table as a PDF
     plt.savefig('f1_scores_table.pdf')
     plt.show()
+    
+    print("All Done! :)")
             
 if __name__ == "__main__":
     main()
