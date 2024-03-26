@@ -1,11 +1,17 @@
+"""
+Task 3
+who did it: Nick Largey
+Mar 25,2024
+Behrooz Mansouri
+470 Text Mining and Analytics
+"""
+
 import math
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import torch
 import re
 import pronouncing # for rhyming words
-import cmudict # for syllable count and section structure
 import spacy
 from spacy import displacy
 from spacy.tokenizer import Tokenizer
@@ -18,13 +24,13 @@ import seaborn as sns
 from collections import Counter
 from langdetect import detect, LangDetectException
 
+spacy.prefer_gpu()
 
 pp = pprint.PrettyPrinter(indent=4)
 punct_re = re.compile(r'[^\w\s]')
 
 
-
-def EDA_rhymes(dataframe, counts):
+def EDA_rhymes(dataframe):
   df = pd.DataFrame()
   df = dataframe.copy()
 
@@ -83,6 +89,7 @@ def compute_tf(document):
     num_words = len(document)
     return {word: count / num_words for word, count in tf_document.items()}
 
+
 def compute_idf(documents):
     # Compute document frequency for each term
     num_documents = len(documents)
@@ -92,6 +99,7 @@ def compute_idf(documents):
     
     # Compute IDF, adding 1 to denominator to avoid division by zero
     return {word: math.log(num_documents / (freq + 1)) for word, freq in df.items()}
+
 
 def tfidf(documents):
     # Compute TF for each document
@@ -107,6 +115,7 @@ def tfidf(documents):
         tf_idf_documents.append(tf_idf)
     
     return tf_idf_documents
+
 
 def EDA_TF_IDF(dataframe):
   df = pd.DataFrame()
@@ -125,25 +134,12 @@ def EDA_TF_IDF(dataframe):
   for tf in tqdm(tfs):
       tf_idf = {word: tf_val * idf.get(word, 0) for word, tf_val in tf.items()}
       tf_idf_documents.append(tf_idf)
-  # # For demonstration, convert to PyTorch tensors (optional)
-  # for doc_id, scores in enumerate(tf_idf_scores):
-  #     # Assume vocabulary is the union of all words in all documents
-  #     vocabulary = set(word for document in df['Lyrics'] for word in document)
-  #     tensor = torch.zeros(len(vocabulary))
-  #     word_to_idx = {word: idx for idx, word in enumerate(vocabulary)}
-  #     for word, score in scores.items():
-  #         tensor[word_to_idx[word]] = score
-  #     print(f"Document {doc_id} TF-IDF scores as tensor:\n{tensor}")
 
   return tf_idf_documents
 
-def EDA_visualizer(dataframe, counts):
-  df = pd.DataFrame()
+
+def EDA_visualizer(nlp, dataframe, counts):
   df = dataframe.copy()
-
-  spacy.prefer_gpu()
-  nlp = spacy.load("en_core_web_trf")
-
   for cat, max in counts.iteritems():
     rand_idx = np.random.randint(0, max)
     title = df[df['Genre'] == cat].iloc[rand_idx]['Song Title']
@@ -158,73 +154,84 @@ def EDA_visualizer(dataframe, counts):
       output_path.open("w", encoding="utf-8").write(svg)
 
 
-def EDA_tokenize(dataframe):
-  spacy.prefer_gpu()
-  nlp = spacy.load("en_core_web_trf")
+
+def EDA_tokenize(nlp, dataframe):
   tokenizer = Tokenizer(nlp.vocab)
-  
+
   df = pd.DataFrame()
   df = dataframe.copy()
   lyrics = df['Lyrics'].tolist()  
   
   pos = []
   tokenized_lyrics = []
+  
   for doc in tqdm(lyrics):
     tokens = tokenizer(doc)
     tokenized_lyrics.append([token.text for token in tokens])
-    doc_pos = Counter(token.pos_ for token in tokens)
+    p_doc = nlp(doc)
+    doc_pos = [token.pos_ for token in p_doc]
     pos.append(doc_pos) 
 
+  pp.pprint(pos[:5])
   return tokenized_lyrics, pos
+
 
 def is_english(text):
     try:
         return detect(text) == 'en'
     except LangDetectException:
         return False
-    
+
+
 def to_csv(dataframe):
   mask = dataframe['Lyrics'].apply(is_english)
   filtered_df = dataframe[mask]
   filtered_df.to_csv('filtered_lyrics.csv', index=False)
 
 
-# Bag of Words (BoW): Represents the presence of words within the text. While simple, BoW can be surprisingly effective for text classification. However, it ignores word order and context.
-# Term Frequency-Inverse Document Frequency (TF-IDF): Weighs the words based on how unique they are to a document. TF-IDF can help emphasize words that are distinctive to certain genres.
-# Sentiment Analysis: The sentiment of lyrics might correlate with certain genres. For example, happier sentiments could be more prevalent in pop songs, while darker, 
-# more melancholic sentiments might be more common in some subgenres of rock or metal.
-# Lexical Diversity: Measures how varied an artist's vocabulary is within their lyrics. Some genres might exhibit higher lexical diversity than others.
-# Topic Modeling Features: Techniques like Latent Dirichlet Allocation (LDA) can identify topics within lyrics. The prevalence of certain topics might be indicative of specific genres.
-# Linguistic Features: This includes the use of specific parts of speech (adjectives, nouns, verbs), which can vary by genre. For example, more aggressive language might be prevalent in certain genres like rap or metal.
-# Stylometric Features: These are based on the writing style, including sentence length, the use of certain punctuation, rhyme patterns, and other stylistic elements. Some genres might have 
-# a more complex structure or use more figurative language.
-# Metadata: While not directly related to the lyrics, metadata such as the artist, album, and year of release can provide contextual clues that are helpful for genre classification.
-# Cultural References: References to specific places, people, events, or cultural elements can hint at a song's genre, especially for genres closely tied to particular themes or communities.
+def EDA_corr_heat_map(dataframe):
+  Xy_train = dataframe.copy()
+  corr = Xy_train[['Genre','F_Rhymes', 'S_Rhymes', 'FRD', 'SRD', 'TF-IDF', 'POS', 'Tokenized Lyrics']].corr()
+  heatmap = sns.heatmap(corr, vmin=-1, vmax=1, cmap='BrBG', annot=True)
+  heatmap.set_title('Correlation Heatmap', fontdict={'fontsize':20}, pad=14)
+  plt.savefig('images/correlation_heatmap.png', dpi=300)
 
 def main():
   # df = pd.read_csv('./lyrics.csv')
   # to_csv(df)
   filtered_df = pd.read_csv('./filtered_lyrics.csv')
+  genre_ints = {
+      'Blues': 0,
+      'Country': 1,
+      'Metal': 2,
+      'Pop': 3,
+      'Rap': 4,
+      'Rock': 5
+  }
+
   counts = filtered_df['Genre'].value_counts()
   # EDA_visualizer(filtered_df, counts)
+  nlp = spacy.load("en_core_web_trf")
+  # final_df = pd.DataFrame()
+  # final_df["Genre"] = filtered_df['Genre']
   
-  final_df = pd.DataFrame()
-  final_df["Genre"] = filtered_df['Genre']
-  
-  f,s, rd, srd = EDA_rhymes(filtered_df, counts)   
-  term = EDA_TF_IDF(filtered_df)
-  token, pos = EDA_tokenize(filtered_df)
+  # f,s, rd, srd = EDA_rhymes(filtered_df)   
+  # term = EDA_TF_IDF(filtered_df)
+  # token, pos = EDA_tokenize(nlp, filtered_df)
 
-  final_df['F_Rhymes'] = f
-  final_df['S_Rhymes'] = s
-  final_df['FRD'] = rd
-  final_df['SRD'] = srd
-  final_df['TF-IDF'] = term
-  final_df['POS'] = pos
-  final_df['Tokenized Lyrics'] = token
-
+  # final_df['Genre'] = final_df['Genre'].replace(genre_ints)
+  # final_df['F_Rhymes'] = f
+  # final_df['S_Rhymes'] = s
+  # final_df['FRD'] = rd
+  # final_df['SRD'] = srd
+  # final_df['TF-IDF'] = term
+  # final_df['POS'] = pos
+  # final_df['Tokenized Lyrics'] = token
+  final_df = pd.read_csv("_final_df.csv")
+  final_df['Lyrics_Vector'] = [doc.vector for doc in nlp.pipe(final_df['Tokenized Lyrics'])]
   final_df.to_csv('final_df.csv', index=False)
 
+  EDA_corr_heat_map(final_df)
 
 
 if __name__ == '__main__':

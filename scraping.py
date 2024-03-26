@@ -119,7 +119,7 @@ def compare_folders(test_folder, train_folder, genre):
 
 def to_csv(folder_path):
 
-    with open("lyrics.csv", "w", encoding="utf-8") as file:
+    with open("test.csv", "w", encoding="utf-8") as file:
 
         file.write("Song Title,Lyrics,Genre\n")
         for genre in os.listdir(folder_path):
@@ -138,6 +138,7 @@ def main():
     find_directory = os.path.dirname(os.path.abspath(__file__))
     # Createing the main folder
     train_filepath = os.path.join(find_directory, "Training Songs")
+    test_filepath = os.path.join(find_directory, "Test Songs")
     os.makedirs(train_filepath, exist_ok=True)
     # Starting genre links
 
@@ -226,7 +227,7 @@ def main():
     #     compare_folders(test_folder, train_filepath, genre)  
 
     # Putting all the lyrics in to a csv file
-    to_csv(train_filepath)
+    to_csv(test_filepath)
 
 if __name__ == "__main__":
     main()
