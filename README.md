@@ -1,4 +1,66 @@
-# README: Task3
+# README: Task 1
+
+## Overview
+
+This Python script, 'scraping.py', web scraping lyrics.com for the genre and the lyrics of each song.
+
+## Project Information
+
+- **Author:** Nick Largey and Sarah Lawrence
+- **Course:** COS 470: Text Mining and Analytics
+- **Assignment** 3
+- **Due Date:** Mar 25, 2024
+
+## Script Structure
+
+The script is organized into several functions, each responsible for its own task those tasks are as follows.
+
+## Functions
+
+### 'scrape_lyrics' Function
+- Overall:
+  - storing titles and lyrics from the sight
+ 
+### 'get_all_genre_songs' Function
+- Overall:
+  - getting all the links that access the song lyrics
+ 
+### 'songs_in_genre_files' Function
+- Overall:
+  - going through all the pages
+  - using get_all_genre_songs to get all the links on each page
+  - then using scrape_lyrics to scrape the lyrics
+
+### 'compare_folders' Function
+- Overall:
+  - compares the test titles to the scraped song titles
+
+### 'to_csv' Function
+- Overall:
+  - putting all the scraped information into a csv
+
+### 'main' Function
+- Overall:
+  - generates folders
+  - runners each genre tasks in genres_dict independently through songs_in_genre_files
+  - removing training songs that match with test songs
+  - puts the training and test into a CSV file
+
+## Result
+
+- ** lyrics.csv
+- ** test.csv
+
+## Usage
+1. Ensure that the following are installed:
+
+    ```bash
+    pip install beautifulsoup4
+    ```
+2. This will take a while to run
+   - It's recommended to use the provided lyrics.csv if you want to quickly move to the next tasks
+
+# README: Task 3
 
 ## Overview
 
@@ -8,7 +70,7 @@ This Python script, 'Task3.py', uses word embeddings and a feed-forward neural n
 
 - **Author:** Sarah Lawrence
 - **Course:** COS 470: Text Mining and Analytics
-- **Assignmnet:** 3
+- **Assignment** 3
 - **Due Date:** Mar 25, 2024
 
 ## Script Structure
@@ -18,23 +80,10 @@ The script is organized into several functions, each responsible for its own tas
 ## Functions
 
 ### 'csv_info' Function
-- Input:
-  - data_path: the path to retrieve the information
-  - genres_count: a dictionary with the no counts for each genre
-  - genre_lyrics_dict: the dictionary the information will be put into
-- Output:
-  -  dictionary of all the genres and their lyrics
 - Overall:
   - storing all the genres and their lyric from the CSV file
 
 ### 'split_data_by_genre' Function
-- Input:
-  - Validation_percent: this value is 0.1. It is how the data will be split 90% 10%
-  - gGenre_lyrics_dict: this value has all the genre and their lyrics collected from the csv
-  - Lowest_genre_count: this is the genre that had the least amount of songs
-- Output:
- -  Train data: This dictionary for each genre has the tokenized lyrics of each song. This dictionary has 90% of the data.
- -  Validation data: This dictionary for each genre has the tokenized lyrics of each song but only stores 10% of the data.
 - Overall:
   - This function takes in the genre and lyrics.
   - Randomly selects unique genres and lyrics till it gets the same amount of genres and lyrics for each genre.
@@ -42,16 +91,26 @@ The script is organized into several functions, each responsible for its own tas
   - Split the data into validation and training
 
 ### 'tokenize_lyrics' Function
+- Overall:
+  - this tokenizes the lyrics passed to it  
 
-- 
 
 ### 'get_average_embedding' Function
-
-- 
+- Overall:
+  - this tokenizes the lyrics passed to it  
 
 ### 'main' Function
 - Overall
-  - 
+  - gets CSV information from lyrics
+  - splits data into validation and training data
+  - train Word2Vec with training data
+  - calculate average embeddings
+  - create a feedforward neural network model
+  - train the model
+  - saves information for loss plot
+  - runs test data through model
+  - gets F1 scores from the test and model
+  - displays f1 scores and loss plot
 
 ## Result
 
@@ -66,9 +125,7 @@ The script is organized into several functions, each responsible for its own tas
 2. Ensure that the following are installed:
 
     ```bash
-    pip install tensorflow
-    pip install gensim
-    pip install tqdm
+    pip install tensorflow gensim tqdm
     ```
 3. Ensure that everything is in the same directory
    This includes:

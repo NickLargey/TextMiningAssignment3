@@ -19,17 +19,12 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
 from tqdm import tqdm 
-
+import nltk
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-# nltk.download('punkt')
-# nltk.download('stopwords')
-
-#pip install tensorflow
-#pip install gensim
-#pip install tqdm
-#conda activate Task3
+nltk.download('punkt')
+nltk.download('stopwords')
 
 
 def split_data_by_genre(validation_percent=0.1, genre_lyrics_dict=None, lowest_genre_count=None):
@@ -87,7 +82,6 @@ def csv_info(data_path,genres_count,genre_lyrics_dict):
     
     return genre_lyrics_dict   
 
-
 def get_average_embedding(tokens,word2vec_model):
     embeddings = [word2vec_model.wv[word] for word in tokens if word in word2vec_model.wv]
     if embeddings:
@@ -99,7 +93,6 @@ def main():
     
 
     # Getting csv information from lyrics
-    #print("Collecting informtion from lyrcs has started")
     find_directory = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(find_directory, 'lyrics.csv')
     genres_count = {"Pop": 0, "Rap": 0, "Rock": 0, "Metal": 0, "Country": 0, "Blues": 0}
@@ -109,13 +102,17 @@ def main():
     genre_lyrics_dict = csv_info(data_path,genres_count,genre_lyrics_dict)
 
     # Valdation and Training data
+    print("Splitting data...", end='')
     lowest_genre_count = min(len(lyrics_list) for lyrics_list in genre_lyrics_dict.values()) 
     train_data, validation_data = split_data_by_genre(validation_percent=0.1,genre_lyrics_dict=genre_lyrics_dict,lowest_genre_count=lowest_genre_count)
+    print("Done")
 
     # Train Word2Vec model
+    print("Traing Word2Vec modle...", end='')
     word2vec_model = Word2Vec(sentences=[tokens for sublist in train_data.values() for tokens in sublist],
                               vector_size=100, window=5, min_count=1, workers=4)
-    
+    print("Done")
+
     # Calculate average embeddings for training data
     for genre, token_list in tqdm(train_data.items(), desc='Training Data Processing'):
         train_data[genre] = [get_average_embedding(tokens, word2vec_model) for tokens in token_list]
@@ -143,11 +140,10 @@ def main():
 
     # Define a feedforward neural network model
     model = tf.keras.models.Sequential([
-    tf.keras.layers.Dense(128, activation='relu', input_shape=(100,)),  # Word2Vec vector_size = 100 so input_shape = 100
+    tf.keras.layers.Dense(128, activation='relu', input_shape=(100,)), # Word2Vec vector_size = 100 so input_shape = 100
     tf.keras.layers.Dense(64, activation='relu'),
     tf.keras.layers.Dense(num_classes, activation='softmax')  # Output layer with num_classes
     ])
-
     model.compile(optimizer='adam',
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
@@ -198,7 +194,7 @@ def main():
     test_f1_genre = {}
     y_pred_test = model.predict(X_test)
     y_pred_classes_test = np.argmax(y_pred_test, axis=1)
-    test_avrage_f1 = f1_score(y_val_encoded, y_pred_classes, average='weighted')
+    test_avrage_f1 = f1_score(y_test_encoded, y_pred_classes_test, average='weighted')
     f1_test = f1_score(y_test_encoded, y_pred_classes_test, average=None)
     for genre, f1_test in tqdm(zip(genres, f1_test), desc='Test F1 Score Processing'):    
        test_f1_genre[genre] = f1_test
@@ -232,7 +228,7 @@ def main():
     plt.savefig('f1_scores_table.pdf')
     plt.show()
     
-    print("All Done! :)")
+    print("All Done! \u001b[32m:)\u001b[32m")
             
 if __name__ == "__main__":
     main()
