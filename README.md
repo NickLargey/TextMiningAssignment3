@@ -70,4 +70,3 @@ The script is organized into several functions, each responsible for its own tas
   - test.csv
   - lyrics.csv
   - Task3.py
-  - Task3.py
