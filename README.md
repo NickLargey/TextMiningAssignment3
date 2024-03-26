@@ -58,8 +58,7 @@ The script is organized into several functions, each responsible for its own tas
     pip install beautifulsoup4
     ```
 2. This will take a while to run
-   - it's recommended to use the lyrics.csv
-
+   - It's recommended to use the provided lyrics.csv if you want to quickly move to the next tasks
 
 # README: Task 3
 
