@@ -171,8 +171,7 @@ def EDA_tokenize(nlp, dataframe):
     p_doc = nlp(doc)
     doc_pos = [token.pos_ for token in p_doc]
     pos.append(doc_pos) 
-
-  pp.pprint(pos[:5])
+    
   return tokenized_lyrics, pos
 
 
@@ -210,25 +209,24 @@ def main():
   }
 
   counts = filtered_df['Genre'].value_counts()
-  # EDA_visualizer(filtered_df, counts)
+  EDA_visualizer(filtered_df, counts)
   nlp = spacy.load("en_core_web_trf")
-  # final_df = pd.DataFrame()
-  # final_df["Genre"] = filtered_df['Genre']
+  final_df = pd.DataFrame()
+  final_df["Genre"] = filtered_df['Genre']
   
-  # f,s, rd, srd = EDA_rhymes(filtered_df)   
-  # term = EDA_TF_IDF(filtered_df)
-  # token, pos = EDA_tokenize(nlp, filtered_df)
+  f,s, rd, srd = EDA_rhymes(filtered_df)   
+  term = EDA_TF_IDF(filtered_df)
+  token, pos = EDA_tokenize(nlp, filtered_df)
 
-  # final_df['Genre'] = final_df['Genre'].replace(genre_ints)
-  # final_df['F_Rhymes'] = f
-  # final_df['S_Rhymes'] = s
-  # final_df['FRD'] = rd
-  # final_df['SRD'] = srd
-  # final_df['TF-IDF'] = term
-  # final_df['POS'] = pos
-  # final_df['Tokenized Lyrics'] = token
-  final_df = pd.read_csv("_final_df.csv")
-  final_df['Lyrics_Vector'] = [doc.vector for doc in nlp.pipe(final_df['Tokenized Lyrics'])]
+  final_df['Genre'] = final_df['Genre'].replace(genre_ints)
+  final_df['F_Rhymes'] = f
+  final_df['S_Rhymes'] = s
+  final_df['FRD'] = rd
+  final_df['SRD'] = srd
+  final_df['TF-IDF'] = term
+  final_df['POS'] = pos
+  final_df['Tokenized Lyrics'] = token
+
   final_df.to_csv('final_df.csv', index=False)
 
   EDA_corr_heat_map(final_df)

@@ -117,9 +117,9 @@ def compare_folders(test_folder, train_folder, genre):
         else:
             print(f"No match found for {test_file} in Training Songs {genre}")
 
-def to_csv(folder_path):
+def to_csv(folder_path, csv):
 
-    with open("test.csv", "w", encoding="utf-8") as file:
+    with open("f{csv}.csv", "w", encoding="utf-8") as file:
 
         file.write("Song Title,Lyrics,Genre\n")
         for genre in os.listdir(folder_path):
@@ -145,94 +145,94 @@ def main():
 
     ####### ONLY NEEDS TO BE RUN ONCE TO GENERATE THE TRAINING GENRE FOLDERS #######
      
-    # genres_dict = {
-    # 'Rock': ['https://www.lyrics.com/style/Arena+Rock',
-    #          'https://www.lyrics.com/style/Art+Rock',
-    #          'https://www.lyrics.com/style/Acid+Rock',
-    #          'https://www.lyrics.com/style/Alternative+Rock', 
-    #          'https://www.lyrics.com/style/Blues+Rock',
-    #          'https://www.lyrics.com/style/Classic+Rock',
-    #          'https://www.lyrics.com/style/Folk+Rock',
-    #          'https://www.lyrics.com/style/Garage+Rock',
-    #          'https://www.lyrics.com/style/Goth+Rock',
-    #          'https://www.lyrics.com/style/Indie+Rock',
-    #          'https://www.lyrics.com/style/Soft+Rock',
-    #          'https://www.lyrics.com/style/Space+Rock',
-    #          'https://www.lyrics.com/style/Stoner+Rock',
-    #          'https://www.lyrics.com/style/Symphonic+Rock',
-    #          'https://www.lyrics.com/style/Rock+__+Roll',
-    #          'https://www.lyrics.com/style/Psychedelic+Rock',
-    #          'https://www.lyrics.com/style/Prog+Rock',
-    #          'https://www.lyrics.com/style/Punk+Rock',
-    #          'https://www.lyrics.com/style/Post+Rock'],
+    genres_dict = {
+    'Rock': ['https://www.lyrics.com/style/Arena+Rock',
+             'https://www.lyrics.com/style/Art+Rock',
+             'https://www.lyrics.com/style/Acid+Rock',
+             'https://www.lyrics.com/style/Alternative+Rock', 
+             'https://www.lyrics.com/style/Blues+Rock',
+             'https://www.lyrics.com/style/Classic+Rock',
+             'https://www.lyrics.com/style/Folk+Rock',
+             'https://www.lyrics.com/style/Garage+Rock',
+             'https://www.lyrics.com/style/Goth+Rock',
+             'https://www.lyrics.com/style/Indie+Rock',
+             'https://www.lyrics.com/style/Soft+Rock',
+             'https://www.lyrics.com/style/Space+Rock',
+             'https://www.lyrics.com/style/Stoner+Rock',
+             'https://www.lyrics.com/style/Symphonic+Rock',
+             'https://www.lyrics.com/style/Rock+__+Roll',
+             'https://www.lyrics.com/style/Psychedelic+Rock',
+             'https://www.lyrics.com/style/Prog+Rock',
+             'https://www.lyrics.com/style/Punk+Rock',
+             'https://www.lyrics.com/style/Post+Rock'],
 
-    # 'Rap':  ['https://www.lyrics.com/genre/Hip+Hop'],
+    'Rap':  ['https://www.lyrics.com/genre/Hip+Hop'],
 
-    # 'Pop':  ['https://www.lyrics.com/style/Brit+Pop',
-    #         'https://www.lyrics.com/style/Dance-pop',
-    #         'https://www.lyrics.com/style/Dream+Pop',
-    #         'https://www.lyrics.com/style/Europop',
-    #         'https://www.lyrics.com/style/Indie+Pop',
-    #         'https://www.lyrics.com/style/Pop+Rock',
-    #         'https://www.lyrics.com/style/Power+Pop',
-    #         'https://www.lyrics.com/style/Synth-pop'
-    #         ],
+    'Pop':  ['https://www.lyrics.com/style/Brit+Pop',
+            'https://www.lyrics.com/style/Dance-pop',
+            'https://www.lyrics.com/style/Dream+Pop',
+            'https://www.lyrics.com/style/Europop',
+            'https://www.lyrics.com/style/Indie+Pop',
+            'https://www.lyrics.com/style/Pop+Rock',
+            'https://www.lyrics.com/style/Power+Pop',
+            'https://www.lyrics.com/style/Synth-pop'
+            ],
 
-    # 'Metal':['https://www.lyrics.com/style/Heavy+Metal',
-    #          'https://www.lyrics.com/style/Black+Metal',
-    #          'https://www.lyrics.com/style/Death+Metal',
-    #          'https://www.lyrics.com/style/Deathcore',
-    #          'https://www.lyrics.com/style/Doom+Metal',
-    #          'https://www.lyrics.com/style/Folk+Metal',
-    #          'https://www.lyrics.com/style/Funeral+Doom+Metal',
-    #          'https://www.lyrics.com/style/Funk+Metal',
-    #          'https://www.lyrics.com/style/Glam',
-    #          'https://www.lyrics.com/style/Gothic+Metal',
-    #          'https://www.lyrics.com/style/Metalcore',
-    #          'https://www.lyrics.com/style/Melodic+Death+Metal',
-    #          'https://www.lyrics.com/style/Nu+Metal',
-    #          'https://www.lyrics.com/style/Power+Metal',
-    #          'https://www.lyrics.com/style/Progressive+Metal',
-    #          'https://www.lyrics.com/style/Sludge+Metal',
-    #          'https://www.lyrics.com/style/Speed+Metal',],
+    'Metal':['https://www.lyrics.com/style/Heavy+Metal',
+             'https://www.lyrics.com/style/Black+Metal',
+             'https://www.lyrics.com/style/Death+Metal',
+             'https://www.lyrics.com/style/Deathcore',
+             'https://www.lyrics.com/style/Doom+Metal',
+             'https://www.lyrics.com/style/Folk+Metal',
+             'https://www.lyrics.com/style/Funeral+Doom+Metal',
+             'https://www.lyrics.com/style/Funk+Metal',
+             'https://www.lyrics.com/style/Glam',
+             'https://www.lyrics.com/style/Gothic+Metal',
+             'https://www.lyrics.com/style/Metalcore',
+             'https://www.lyrics.com/style/Melodic+Death+Metal',
+             'https://www.lyrics.com/style/Nu+Metal',
+             'https://www.lyrics.com/style/Power+Metal',
+             'https://www.lyrics.com/style/Progressive+Metal',
+             'https://www.lyrics.com/style/Sludge+Metal',
+             'https://www.lyrics.com/style/Speed+Metal',],
 
-    # 'Country': ['https://www.lyrics.com/style/Country',
-    #             'https://www.lyrics.com/style/Country+Rock',
-    #             'https://www.lyrics.com/style/Hillbilly'],
+    'Country': ['https://www.lyrics.com/style/Country',
+                'https://www.lyrics.com/style/Country+Rock',
+                'https://www.lyrics.com/style/Hillbilly'],
 
-    # 'Blues': ['https://www.lyrics.com/style/Chicago+Blues',
-    #           'https://www.lyrics.com/style/Country+Blues',
-    #           'https://www.lyrics.com/style/Delta+Blues',
-    #           'https://www.lyrics.com/style/Gospel',
-    #           'https://www.lyrics.com/style/Harmonica+Blues',
-    #           ]
-    # }
+    'Blues': ['https://www.lyrics.com/style/Chicago+Blues',
+              'https://www.lyrics.com/style/Country+Blues',
+              'https://www.lyrics.com/style/Delta+Blues',
+              'https://www.lyrics.com/style/Gospel',
+              'https://www.lyrics.com/style/Harmonica+Blues',
+              ]
+    }
     
-    # for genre, url in genres_dict.items():
-    #     # Making genre folders
-    #     subfolder_path = os.path.join(train_filepath, genre)
-    #     os.makedirs(subfolder_path, exist_ok=True)
+    for genre, url in genres_dict.items():
+        # Making genre folders
+        subfolder_path = os.path.join(train_filepath, genre)
+        os.makedirs(subfolder_path, exist_ok=True)
 
-    # # Running each file tasks independently 
-    #     # File tasks = putting lyrcs that are in txt document into the correct genre folder
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     # Creating the tasks/threads
-    #     futures = []
-    #     for genre, urls in genres_dict.items():
-    #         for url in urls:
-    #             futures.append(executor.submit(songs_in_genre_files, genre, url, train_filepath, headers))     
+    # Running each file tasks independently 
+        # File tasks = putting lyrcs that are in txt document into the correct genre folder
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Creating the tasks/threads
+        futures = []
+        for genre, urls in genres_dict.items():
+            for url in urls:
+                futures.append(executor.submit(songs_in_genre_files, genre, url, train_filepath, headers))     
 
-    # # Removing training songs that match with test songs 
-    # test_folder = os.path.join(find_directory, "Test Songs")
-    # for genre, _ in genres_dict.items():
-    #     compare_folders(test_folder, train_filepath, genre)  
+    # Removing training songs that match with test songs 
+    test_folder = os.path.join(find_directory, "Test Songs")
+    for genre, _ in genres_dict.items():
+        compare_folders(test_folder, train_filepath, genre)  
 
     ######## END RUN ONCE ########
 
     # Putting the training and test in to a csv file
     test_filepath = os.path.join(find_directory, "Test Songs")
-    to_csv(test_filepath)
-    to_csv(train_filepath)
+    to_csv(test_filepath, 'test')
+    to_csv(train_filepath, 'lyrics')
 
 if __name__ == "__main__":
     main()
