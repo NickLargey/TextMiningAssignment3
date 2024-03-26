@@ -129,8 +129,24 @@ def main():
 
   y = df.copy('Genre')
 
+  indices = np.arange(df.shape[0])
+  train_indices, val_indices = train_test_split(indices, test_size=0.2, random_state=42)
 
-  train_numeric, val_numeric, train_tfidf, val_tfidf, train_lyrics, val_lyrics, train_pos, val_pos, train_genres, val_genres = train_test_split(X_numeric, X_tfidf, X_lyrics, X_pos, y, test_size=.2, random_state=42)
+  train_numeric = X_numeric[train_indices]
+  val_numeric = X_numeric[val_indices]
+
+  train_tfidf = X_tfidf[train_indices]
+  val_tfidf = X_tfidf[val_indices]
+
+  train_lyrics = X_lyrics[train_indices]
+  val_lyrics = X_lyrics[val_indices]
+
+  train_pos = X_pos[train_indices]
+  val_pos = X_pos[val_indices]
+
+  train_genres = y[train_indices]
+  val_genres = y[val_indices]
+
 
   train_dataset = LyricsDataset(train_numeric, train_tfidf, train_lyrics, train_pos, train_genres)
   val_dataset = LyricsDataset(val_numeric, val_tfidf, val_lyrics, val_pos, val_genres)
