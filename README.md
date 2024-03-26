@@ -19,11 +19,13 @@ The script is organized into several functions, each responsible for its own tas
 
 ### 'csv_info' Function
 - Input:
-  - 
+  - data_path: the path to retrieve the information
+  - genres_count: a dictionary with the no counts for each genre
+  - genre_lyrics_dict: the dictionary the information will be put into
 - Output:
- -  
+  -  dictionary of all the genres and their lyrics
 - Overall:
-  - 
+  - storing all the genres and their lyric from the CSV file
 
 ### 'split_data_by_genre' Function
 - Input:
@@ -38,7 +40,6 @@ The script is organized into several functions, each responsible for its own tas
   - Randomly selects unique genres and lyrics till it gets the same amount of genres and lyrics for each genre.
   - Then it shuffles the genres and lyrics
   - Split the data into validation and training
-
 
 ### 'tokenize_lyrics' Function
 
