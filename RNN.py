@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 from torch.optim import Adam
 import spacy
 import numpy as np
@@ -73,14 +74,36 @@ def one_hot_encode(pos_list):
 
 def main():
   df = pd.read_csv('./final_df.csv')
-  num_genres = df['Genres'].max()
+  num_genres = df['Genre'].max()
   num_epochs = 20
+  data_size = df["Genre"].value_counts().min()
 
-  X_numeric = df.copy(['F_Rhymes','S_Rhymes','FRD','SRD'])
-  X_tfidf = df.copy('TF_IDF')
-  X_lyrics = df.copy('Lyrics_Vector')
+  n_samples_per_group = data_size  # Number of samples per group
+  column_to_group_by = 'Genre'
+
+  # Sample n rows from each group
+  df = df.groupby(column_to_group_by).apply(lambda x: x.sample(n=n_samples_per_group)).reset_index(drop=True)
+
+
+
+  numeric = df.copy(['F_Rhymes','S_Rhymes','FRD','SRD'])
+  numeric_data = numeric.apply(pd.to_numeric, errors='coerce')
+  numeric_data_filled = numeric_data.fillna(0)
+  X_numeric = numeric_data_filled.values
+
+  tfidf = df.copy('TF_IDF')
+  tfidf_data = tfidf.apply(pd.to_numeric, errors='coerce')
+  X_tfidf = tfidf_data.values.astype('float32')
+
+  lyrics = df.copy('Tokenized Lyrics')
+  tokenized_lyrics_list = lyrics['Tokenized Lyrics'].apply(list).tolist()
+  
+  max_length = max(len(lyric) for lyric in tokenized_lyrics_list)
+  X_lyrics = pad_sequences(tokenized_lyrics_list, maxlen=max_length, padding='post', dtype='int64')
 
   y = df.copy('Genre')
+
+
   train_numeric, val_numeric, train_tfidf, val_tfidf, train_lyrics, val_lyrics, train_genres, val_genres = train_test_split(X_numeric, X_tfidf, X_lyrics, y, test_size=.2, random_state=42)
 
   train_dataset = LyricsDataset(train_numeric, train_tfidf, train_lyrics, train_genres)
