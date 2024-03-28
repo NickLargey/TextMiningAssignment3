@@ -11,14 +11,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+
 import pronouncing # for rhyming words
 import spacy
 from spacy import displacy
 from spacy.tokenizer import Tokenizer
-from spacy.lang.en import English
-
+from spacy.tokens import Doc
 from pathlib import Path
 from tqdm import tqdm
+
 import pprint
 import seaborn as sns
 from collections import Counter
@@ -28,7 +29,7 @@ spacy.prefer_gpu()
 
 pp = pprint.PrettyPrinter(indent=4)
 punct_re = re.compile(r'[^\w\s]')
-
+nlp = spacy.load("en_core_web_sm")
 
 def EDA_rhymes(dataframe):
   df = pd.DataFrame()
@@ -39,6 +40,7 @@ def EDA_rhymes(dataframe):
   f_rd = []
   s_rd = []
 
+  print("Computing Rhyme Structures...")
   for i, row in tqdm(df.iterrows()):
     cat = row['Genre']
     song_title = row['Song Title']
@@ -131,6 +133,7 @@ def EDA_TF_IDF(dataframe):
   
   # Compute TF-IDF
   tf_idf_documents = []
+  print("Computing TF-IDF...")
   for tf in tqdm(tfs):
       tf_idf = {word: tf_val * idf.get(word, 0) for word, tf_val in tf.items()}
       tf_idf_documents.append(tf_idf)
@@ -138,8 +141,9 @@ def EDA_TF_IDF(dataframe):
   return tf_idf_documents
 
 
-def EDA_visualizer(nlp, dataframe, counts):
+def EDA_visualizer(dataframe, counts):
   df = dataframe.copy()
+  print("Visualizing Random Samples...")
   for cat, max in counts.iteritems():
     rand_idx = np.random.randint(0, max)
     title = df[df['Genre'] == cat].iloc[rand_idx]['Song Title']
@@ -155,23 +159,19 @@ def EDA_visualizer(nlp, dataframe, counts):
 
 
 
-def EDA_tokenize(nlp, dataframe):
+def EDA_tokenize(dataframe):
   tokenizer = Tokenizer(nlp.vocab)
-
-  df = pd.DataFrame()
   df = dataframe.copy()
   lyrics = df['Lyrics'].tolist()  
   
   pos = []
   tokenized_lyrics = []
-  
-  for doc in tqdm(lyrics):
-    tokens = tokenizer(doc)
+  print("Tokenizing and Tagging Part of Speech...")
+  for doc in tqdm(tokenizer.pipe(lyrics)):
+    tokens = nlp(doc)
     tokenized_lyrics.append([token.text for token in tokens])
-    p_doc = nlp(doc)
-    doc_pos = [token.pos_ for token in p_doc]
-    pos.append(doc_pos) 
-    
+    pos.append([token.pos for token in tokens])
+  
   return tokenized_lyrics, pos
 
 
@@ -210,13 +210,13 @@ def main():
 
   counts = filtered_df['Genre'].value_counts()
   EDA_visualizer(filtered_df, counts)
-  nlp = spacy.load("en_core_web_trf")
+
   final_df = pd.DataFrame()
   final_df["Genre"] = filtered_df['Genre']
   
   f,s, rd, srd = EDA_rhymes(filtered_df)   
   term = EDA_TF_IDF(filtered_df)
-  token, pos = EDA_tokenize(nlp, filtered_df)
+  token, pos = EDA_tokenize(filtered_df)
 
   final_df['Genre'] = final_df['Genre'].replace(genre_ints)
   final_df['F_Rhymes'] = f
@@ -226,8 +226,10 @@ def main():
   final_df['TF-IDF'] = term
   final_df['POS'] = pos
   final_df['Tokenized Lyrics'] = token
-
+  print(final_df.head())
   final_df.to_csv('final_df.csv', index=False)
+ 
+  print(final_df.info())
 
   EDA_corr_heat_map(final_df)
 
